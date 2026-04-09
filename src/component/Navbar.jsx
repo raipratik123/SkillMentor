@@ -1,13 +1,14 @@
 import { Link } from "react-router-dom";
+
 export default function Navbar() {
   return (
-    <header className="navbar">
+    <nav className="navbar">
       <div className="navbar-inner">
         <Link to="/" className="brand">
           ✨ SkillMentor
         </Link>
 
-        <nav className="nav-links">
+        <div className="nav-links">
           <Link to="/">Home</Link>
           <Link to="/dashboard">Dashboard</Link>
           <Link to="/learn">Learn</Link>
@@ -15,8 +16,8 @@ export default function Navbar() {
           <Link to="/signup" className="nav-cta">
             🚀 Get Started
           </Link>
-        </nav>
+        </div>
       </div>
-    </header>
+    </nav>
   );
 }
