@@ -1,44 +1,93 @@
-import { useState } from "react";
+import { useState, useEffect } from 'react';
 
 export default function Learn() {
-  const [topic, setTopic] = useState("");
-  const [mode, setMode] = useState("friendly");
-  const [answer, setAnswer] = useState("");
+  const [topic, setTopic] = useState('');
+  const [mode, setMode] = useState('friendly');
+  const [answer, setAnswer] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
+  const [serverStatus, setServerStatus] = useState('checking');
+
+  // Check server health on component mount
+  useEffect(() => {
+    const checkServer = async () => {
+      try {
+        const response = await fetch('http://localhost:5001/api/health');
+        if (response.ok) {
+          setServerStatus('connected');
+        } else {
+          setServerStatus('error');
+        }
+      } catch (err) {
+        setServerStatus('offline');
+      }
+    };
+    checkServer();
+  }, []);
 
   const handleExplain = async (e) => {
     e.preventDefault();
-
+    
     if (!topic.trim()) {
-      setError("Please enter a topic");
+      setError('Please enter a topic');
+      return;
+    }
+
+    if (serverStatus === 'offline') {
+      setError('❌ Server is offline. Start Node.js server first!');
       return;
     }
 
     setLoading(true);
-    setError("");
-    setAnswer("");
+    setError('');
+    setAnswer('');
 
     try {
-      const response = await fetch("http://localhost:5001/api/explain", {
-        method: "POST",
+      const response = await fetch('http://localhost:5001/api/explain', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ topic: topic.trim(), mode }),
+        body: JSON.stringify({ 
+          topic: topic.trim(), 
+          mode 
+        }),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to get explanation");
+        throw new Error(`Server error: ${response.status}`);
       }
 
       const data = await response.json();
-      setAnswer(data.answer);
+      
+      if (data.error) {
+        setError(data.error);
+      } else {
+        setAnswer(data.answer);
+      }
     } catch (err) {
-      setError(err.message || "Something went wrong. Please try again.");
-      console.error("Error:", err);
+      setError(`❌ ${err.message}. Make sure backend server is running on port 5001`);
+      console.error('Error:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const getServerStatusColor = () => {
+    switch(serverStatus) {
+      case 'connected': return '#10b981';
+      case 'offline': return '#ef4444';
+      case 'checking': return '#f59e0b';
+      default: return '#ef4444';
+    }
+  };
+
+  const getServerStatusText = () => {
+    switch(serverStatus) {
+      case 'connected': return '✓ Server Connected';
+      case 'offline': return '✗ Server Offline';
+      case 'checking': return '⏳ Checking...';
+      default: return '✗ Server Error';
     }
   };
 
@@ -50,6 +99,21 @@ export default function Learn() {
         <p className="learn-subtext">
           Enter any topic and choose your preferred explanation style. Our AI will break it down in a way that's perfect for you!
         </p>
+        <div 
+          style={{
+            marginTop: '20px',
+            display: 'inline-block',
+            padding: '8px 16px',
+            borderRadius: '8px',
+            backgroundColor: `${getServerStatusColor()}20`,
+            border: `2px solid ${getServerStatusColor()}`,
+            color: getServerStatusColor(),
+            fontSize: '14px',
+            fontWeight: '600'
+          }}
+        >
+          {getServerStatusText()}
+        </div>
       </div>
 
       <div className="learn-panel">
@@ -63,7 +127,7 @@ export default function Learn() {
                 placeholder="e.g., Photosynthesis, JavaScript Promises, Quantum Computing"
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
-                disabled={loading}
+                disabled={loading || serverStatus === 'offline'}
               />
             </div>
 
@@ -73,7 +137,7 @@ export default function Learn() {
                 id="mode"
                 value={mode}
                 onChange={(e) => setMode(e.target.value)}
-                disabled={loading}
+                disabled={loading || serverStatus === 'offline'}
               >
                 <option value="friendly">👋 Friendly (Easy & Fun)</option>
                 <option value="beginner">📚 Beginner (Simple Terms)</option>
@@ -87,7 +151,7 @@ export default function Learn() {
             <button
               type="submit"
               className="primary-btn full-width"
-              disabled={loading}
+              disabled={loading || serverStatus === 'offline'}
             >
               {loading ? (
                 <>
@@ -95,7 +159,7 @@ export default function Learn() {
                   Generating Explanation...
                 </>
               ) : (
-                "✨ Explain Now"
+                '✨ Explain Now'
               )}
             </button>
           </form>
@@ -124,7 +188,10 @@ export default function Learn() {
             <div className="learn-answer">{answer}</div>
           ) : (
             <div className="learn-placeholder">
-              Enter a topic and click "Explain Now" to get started!
+              {serverStatus === 'offline' 
+                ? '❌ Backend server is offline. Start the Node.js server first!'
+                : 'Enter a topic and click "Explain Now" to get started!'
+              }
             </div>
           )}
         </div>

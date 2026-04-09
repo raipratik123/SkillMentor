@@ -12,6 +12,7 @@ export default function Navbar() {
           <Link to="/">Home</Link>
           <Link to="/dashboard">Dashboard</Link>
           <Link to="/learn">Learn</Link>
+          <Link to="/practice">Practice</Link>
           <Link to="/login">Login</Link>
           <Link to="/signup" className="nav-cta">
             🚀 Get Started
