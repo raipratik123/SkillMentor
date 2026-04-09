@@ -4,7 +4,7 @@ export default function Navbar() {
     <header className="navbar">
       <div className="navbar-inner">
         <Link to="/" className="brand">
-          SkillMentor
+          ✨ SkillMentor
         </Link>
 
         <nav className="nav-links">
@@ -13,7 +13,7 @@ export default function Navbar() {
           <Link to="/learn">Learn</Link>
           <Link to="/login">Login</Link>
           <Link to="/signup" className="nav-cta">
-         Get Started
+            🚀 Get Started
           </Link>
         </nav>
       </div>
