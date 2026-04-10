@@ -1,24 +1,36 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 export default function Navbar() {
+  const location = useLocation();
+
+  const navItem = (to, label) => {
+    const active = location.pathname === to;
+    return (
+      <Link
+        to={to}
+        className={`transition font-semibold ${
+          active ? "text-white" : "text-gray-300 hover:text-white"
+        }`}
+      >
+        {label}
+      </Link>
+    );
+  };
+
   return (
-    <nav className="navbar">
-      <div className="navbar-inner">
-        <Link to="/" className="brand">
-          ✨ SkillMentor
+    <header className="sticky top-0 z-50 border-b border-indigo-500/20 bg-[#02081f]/95 backdrop-blur">
+      <div className="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
+        <Link to="/" className="text-3xl font-extrabold text-purple-400">
+          SkillMentor
         </Link>
 
-        <div className="nav-links">
-          <Link to="/">Home</Link>
-          <Link to="/dashboard">Dashboard</Link>
-          <Link to="/learn">Learn</Link>
-          <Link to="/practice">Practice</Link>
-          <Link to="/login">Login</Link>
-          <Link to="/signup" className="nav-cta">
-            🚀 Get Started
-          </Link>
-        </div>
+        <nav className="flex items-center gap-8 text-sm sm:text-base">
+          {navItem("/", "Home")}
+          {navItem("/learn", "Learn")}
+          {navItem("/practice", "Practice")}
+          {navItem("/video-summary", "Video Summary")}
+        </nav>
       </div>
-    </nav>
+    </header>
   );
 }
